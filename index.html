@@ -4,44 +4,52 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a1223">
-  <meta name="description" content="A live Warsaw sunset and astronomical darkness countdown, refreshed every second and recalculated each day.">
+  <meta name="description" content="A full-screen sunset, sunrise and twilight clock. Choose a city for live countdowns and a daily light timeline.">
   <title>Warsaw Sunset · Live Countdown</title>
   <style>
     * { box-sizing: border-box; }
-    :root { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color-scheme: dark; }
-    body { min-height: 100vh; margin: 0; padding: clamp(0px, 3vw, 40px); display: grid; place-items: center; background: #070d19; color: #f8f9ff; }
-    .app { width: min(100%, 990px); overflow: hidden; border: 1px solid #303950; border-radius: 26px; background: #0c1424; box-shadow: 0 25px 65px #0004; }
-    .scene { position: relative; height: 495px; overflow: hidden; isolation: isolate; background: linear-gradient(175deg, var(--top, #193968), var(--mid, #604d80) 60%, var(--low, #eb936d)); }
+    :root { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color-scheme: dark; --gutter: clamp(22px, 3.5vw, 72px); }
+    body { min-height: 100vh; margin: 0; background: #070d19; color: #f8f9ff; }
+    .app { width: 100%; height: 100svh; min-height: 650px; display: grid; grid-template-rows: minmax(260px, 1fr) auto; background: #0c1424; }
+    .scene { position: relative; min-height: 0; display: grid; grid-template-rows: auto 1fr; overflow: hidden; isolation: isolate; background: linear-gradient(175deg, var(--top, #193968), var(--mid, #604d80) 60%, var(--low, #eb936d)); }
     .scene::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, #050a1baf, #050a1b26 67%, transparent); pointer-events: none; }
-    .topbar { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 27px 33px; }
-    .location { display: flex; align-items: center; gap: 9px; font-size: 12px; letter-spacing: 2px; font-weight: 750; }
-    .location svg { width: 17px; color: #ffcf91; }
+    .topbar { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: clamp(16px, 2.5vh, 28px) var(--gutter); }
+    .location { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .location svg { flex: 0 0 17px; width: 17px; color: #ffcf91; }
+    .city-select { max-width: 100%; padding: 8px 28px 8px 0; border: 0; border-radius: 5px; background: transparent; color: #f8f9ff; font: 750 12px Inter, system-ui, sans-serif; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+    .city-select option { background: #101a2d; color: #f8f9ff; text-transform: none; }
+    .city-select:focus-visible, .fullscreen:focus-visible { outline: 2px solid #ffcf91; outline-offset: 4px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
     .live { display: flex; align-items: center; gap: 8px; padding: 8px 11px; background: #ffffff15; border: 1px solid #ffffff25; border-radius: 100px; font: 600 11px ui-monospace, monospace; backdrop-filter: blur(15px); white-space: nowrap; }
+    .fullscreen { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #ffffff25; border-radius: 9px; background: #ffffff10; color: #e8edff; cursor: pointer; }
+    .fullscreen[hidden] { display: none; }
+    .fullscreen:hover { background: #ffffff25; }
+    .fullscreen svg { width: 16px; height: 16px; }
     .pulse { width: 7px; height: 7px; border-radius: 50%; background: #7af0ae; box-shadow: 0 0 11px #5af2a7; animation: pulse 2s infinite; }
     @keyframes pulse { 50% { opacity: .35; } }
-    .content { position: relative; z-index: 3; padding: 36px 33px; max-width: 650px; }
+    .content { position: relative; z-index: 3; align-self: center; padding: 12px var(--gutter) 45px; max-width: calc(100% - 310px); }
     .eyebrow { color: #ffdbb2; letter-spacing: 2.5px; font-size: 11px; font-weight: 800; margin-bottom: 14px; }
-    .counter { font: 720 clamp(48px, 8.5vw, 84px) / 1.08 ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; letter-spacing: -4px; filter: drop-shadow(0 3px 25px #0004); white-space: nowrap; }
-    .counter.words { font-size: clamp(35px, 5.5vw, 55px); letter-spacing: -2px; }
+    .counter { font: 720 clamp(52px, min(8vw, 12vh), 150px) / 1.08 ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; letter-spacing: -4px; filter: drop-shadow(0 3px 25px #0004); white-space: nowrap; }
+    .counter.words { font-size: clamp(40px, min(6vw, 10vh), 110px); letter-spacing: -2px; }
     .sub { margin-top: 13px; display: flex; align-items: center; gap: 9px; color: #f3f3ff; font-size: 13px; }
     .sub b { color: #fff0c4; }
-    .phase { margin-top: 30px; display: inline-flex; align-items: center; gap: 9px; background: #10172a6b; border: 1px solid #ffffff2c; padding: 9px 13px; border-radius: 10px; font-size: 12px; backdrop-filter: blur(12px); }
+    .phase { margin-top: 20px; display: inline-flex; align-items: center; gap: 9px; background: #10172a6b; border: 1px solid #ffffff2c; padding: 9px 13px; border-radius: 10px; font-size: 12px; backdrop-filter: blur(12px); }
     .phase-dot { width: 8px; height: 8px; border-radius: 50%; background: #ffd18a; }
     .stars { position: absolute; inset: 0; z-index: 0; pointer-events: none; transition: opacity 2s; }
     .star { position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 9px #fff9; animation: twinkle 3s ease-in-out infinite alternate; }
     @keyframes twinkle { from { opacity: .2; transform: scale(.8); } to { opacity: 1; transform: scale(1.2); } }
     .sun { position: absolute; left: 78%; top: 49%; width: 78px; height: 78px; transform: translate(-50%, -50%); border-radius: 50%; z-index: 1; background: radial-gradient(circle at 35% 35%, #fff9d7, #ffd285 55%, #ff9f61); box-shadow: 0 0 28px 10px #ffd08475, 0 0 100px 47px #fdab6745; transition: top 1s linear, left 1s linear, opacity 1s; }
     .hills { position: absolute; bottom: -2px; left: 0; width: 100%; height: 142px; z-index: 2; pointer-events: none; }
-    .night-card { position: absolute; bottom: 31px; right: 30px; z-index: 4; border: 1px solid #ffffff38; background: #09132abf; border-radius: 16px; padding: 19px 22px; min-width: 245px; backdrop-filter: blur(18px); box-shadow: 0 10px 35px #0004; }
+    .night-card { position: absolute; bottom: clamp(24px, 4vh, 48px); right: var(--gutter); z-index: 4; border: 1px solid #ffffff38; background: #09132abf; border-radius: 16px; padding: 19px 22px; min-width: 270px; backdrop-filter: blur(18px); box-shadow: 0 10px 35px #0004; }
     .night-card .card-label { font-size: 10px; letter-spacing: 1.5px; font-weight: 800; color: #c5c9f0; }
-    .night-time { margin: 8px 0; font: 700 33px ui-monospace, monospace; letter-spacing: -1px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .night-time { margin: 8px 0; font: 700 clamp(33px, 3vw, 48px) ui-monospace, monospace; letter-spacing: -1px; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .night-time.words { font: 700 24px Inter, system-ui, sans-serif; }
     .night-sub { color: #b6bed3; font-size: 11px; }
-    .bottom { padding: 30px 32px 27px; background: linear-gradient(160deg, #111a2d, #0b1323); }
+    .bottom { padding: 20px var(--gutter) 16px; display: flex; flex-direction: column; gap: 16px; background: linear-gradient(160deg, #111a2d, #0b1323); }
     .section-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .section-title strong { font-size: 16px; font-weight: 720; }
     .section-title span { color: #8b99b1; font: 11px ui-monospace, monospace; }
-    .track-container { margin: 51px 0 13px; }
+    .track-container { margin: 18px 0 0; }
     .track { position: relative; height: 10px; border-radius: 100px; background: linear-gradient(to right, #86b2e2 0%, #f4b976 72%, #f49d68 83%, #865b9e 91%, #333965 100%); }
     .track::after { content: ""; position: absolute; inset: 0; border-radius: 100px; background: #030816aa; clip-path: inset(0 0 0 var(--progress, 70%)); }
     .now-marker { position: absolute; z-index: 2; top: 50%; left: var(--progress, 70%); transform: translate(-50%, -50%); width: 19px; height: 19px; border: 4px solid white; border-radius: 50%; background: #ffbf7e; box-shadow: 0 0 0 4px #ffffff18, 0 2px 10px #0005; transition: left 1s linear; }
@@ -62,43 +70,56 @@
     .timeline-point.edge-start:is(:hover, :focus) .point-tooltip { transform: translate(0, 0); }
     .timeline-point.edge-end:is(:hover, :focus) .point-tooltip { transform: translate(-100%, 0); }
     .track-labels { display: flex; justify-content: space-between; color: #99a8c1; font: 11px ui-monospace, monospace; padding-top: 12px; }
-    .timeline-hint { margin-top: 16px; color: #8d9db4; font-size: 11px; text-align: center; }
-    .milestones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 25px; }
+    .timeline-hint { margin-top: 10px; color: #8d9db4; font-size: 11px; text-align: center; }
+    .details-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; }
+    .evening-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .milestones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; flex: 1; }
     .milestone { padding: 16px 13px; background: #ffffff07; border: 1px solid #ffffff14; border-radius: 13px; min-width: 0; }
     .m-head { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #afbad1; margin-bottom: 13px; font-weight: 600; }
     .m-dot { flex: 0 0 8px; height: 8px; border-radius: 50%; background: var(--color); box-shadow: 0 0 12px var(--color); }
     .m-time { font: 750 clamp(19px, 3vw, 27px) ui-monospace, monospace; letter-spacing: -1px; }
     .m-relative { font-size: 11px; color: #8ea0ba; margin-top: 10px; }
     .milestone.active { border-color: #d5ab8566; background: #d5ab8512; }
-    .morning { margin-top: 29px; padding: 23px; border: 1px solid #7394bb38; border-radius: 18px; background: linear-gradient(125deg, #243e5677, #162c4680 65%, #1c294799); }
-    .morning-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 13px; margin-bottom: 18px; }
-    .morning-heading { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 730; }
-    .morning-heading .symbol { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: #a4d5f02a; color: #b8e7ff; font-size: 19px; }
-    .morning-date { color: #a5bad5; font-size: 11px; letter-spacing: 1px; font-weight: 700; }
-    .morning-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
-    .morning-step { min-width: 0; padding: 16px; border-radius: 12px; border: 1px solid #ffffff19; background: #ffffff07; }
+    .morning { padding: 15px 17px; border: 1px solid #7394bb38; border-radius: 16px; background: linear-gradient(125deg, #243e5677, #162c4680 65%, #1c294799); }
+    .morning-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .morning-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 730; }
+    .morning-heading .symbol { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 7px; background: #a4d5f02a; color: #b8e7ff; font-size: 17px; }
+    .morning-date { color: #a5bad5; font-size: 10px; letter-spacing: .6px; font-weight: 700; }
+    .morning-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .morning-step { min-width: 0; padding: 11px 12px; border-radius: 10px; border: 1px solid #ffffff19; background: #ffffff07; }
     .morning-step.important { border-color: #94d8ed82; background: linear-gradient(145deg, #4e9cb138, #9ed3d519); box-shadow: inset 0 0 24px #8acade0c; }
     .morning-step .step-title { display: flex; gap: 7px; align-items: center; font-size: 12px; color: #c9daeb; font-weight: 700; }
-    .morning-step .step-time { display: block; margin: 13px 0 8px; font: 760 28px ui-monospace, monospace; letter-spacing: -1px; color: #f4faff; }
+    .morning-step .step-time { display: block; margin: 9px 0 6px; font: 760 26px ui-monospace, monospace; letter-spacing: -1px; color: #f4faff; }
     .morning-step .step-description { color: #91a9c1; font-size: 11px; line-height: 1.45; }
-    .morning-count { display: flex; align-items: baseline; gap: 9px; margin-top: 18px; padding: 12px 15px; background: #7bd8df16; border-radius: 10px; color: #c8eefa; font-size: 12px; }
+    .morning-count { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; margin-top: 11px; padding: 8px 12px; background: #7bd8df16; border-radius: 8px; color: #c8eefa; font-size: 12px; }
     .morning-count strong { font: 700 19px ui-monospace, monospace; color: #dcfaff; font-variant-numeric: tabular-nums; }
-    .explain { margin-top: 24px; display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; border-radius: 11px; background: #17243a; color: #aebbd1; font-size: 12px; line-height: 1.6; }
+    .explain { display: flex; align-items: flex-start; gap: 10px; padding: 10px 13px; border-radius: 11px; background: #17243a; color: #aebbd1; font-size: 11px; line-height: 1.5; }
     .explain svg { flex: 0 0 16px; margin-top: 2px; color: #91afe3; }
-    .footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; font-size: 10px; color: #66758e; }
+    .footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 10px; color: #8290a8; }
     a { color: #9cafd3; text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 900px) {
+      .app { height: auto; min-height: 100svh; grid-template-rows: minmax(400px, 45svh) auto; }
+      .details-grid { grid-template-columns: 1fr; }
+      .content { max-width: 100%; align-self: start; padding-bottom: 140px; }
+      .counter.words { font-size: clamp(40px, 7vw, 65px); }
+      .night-card { min-width: 245px; padding: 14px 18px; }
+      .night-time { font-size: 30px; }
+    }
     @media (max-width: 600px) {
-      body { padding: 0; display: block; }
-      .app { border-radius: 0; border: 0; min-height: 100vh; }
-      .scene { height: 600px; }
-      .topbar { padding: 23px 21px; }
-      .content { padding: 65px 21px 20px; }
+      :root { --gutter: 20px; }
+      .app { grid-template-rows: minmax(490px, auto) auto; }
+      .topbar { gap: 8px; }
+      .city-select { width: 160px; font-size: 11px; letter-spacing: .5px; padding-right: 5px; }
+      .top-actions { gap: 6px; }
+      .live { gap: 5px; padding: 8px; font-size: 10px; }
+      .fullscreen { width: 30px; height: 30px; }
+      .content { padding-top: 38px; padding-bottom: 170px; }
       .counter { font-size: clamp(41px, 10.2vw, 64px); letter-spacing: -2.8px; }
       .counter.words { font-size: 40px; }
-      .night-card { right: 20px; left: 20px; bottom: 53px; min-width: 0; }
+      .night-card { right: var(--gutter); left: var(--gutter); bottom: 28px; min-width: 0; }
       .sun { width: 65px; height: 65px; }
       .hills { height: 135px; }
-      .bottom { padding: 26px 20px; }
+      .bottom { padding-top: 24px; padding-bottom: 24px; }
       .timeline-point { width: 18px; height: 18px; }
       .timeline-point::before { width: 9px; height: 9px; border-width: 1.5px; }
       .milestones { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -120,11 +141,16 @@
       <div class="stars" id="stars" aria-hidden="true"></div>
       <div class="sun" id="sun" aria-hidden="true"></div>
       <div class="topbar">
-        <div class="location">
+        <label class="location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1116 0z"/><circle cx="12" cy="10" r="2.5"/></svg>
-          WARSAW, POLAND
+          <select class="city-select" id="city-select" aria-label="City"><option value="warsaw">Warsaw, Poland</option></select>
+        </label>
+        <div class="top-actions">
+          <div class="live"><span class="pulse"></span>LIVE <span id="clock">--:--:--</span></div>
+          <button class="fullscreen" type="button" id="fullscreen" aria-label="Enter full screen" title="Enter full screen" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>
+          </button>
         </div>
-        <div class="live"><span class="pulse"></span>LIVE <span id="clock">--:--:--</span></div>
       </div>
       <div class="content">
         <div class="eyebrow" id="sun-label">TIME UNTIL SUNSET</div>
@@ -160,41 +186,55 @@
         <div class="track-labels"><span id="rise-label">✧ First glow</span><span>✦ Complete darkness</span></div>
         <div class="timeline-hint">Hover over a dot · Or tap to see the time and live countdown</div>
       </div>
-      <div class="milestones">
-        <div class="milestone" id="mile-sunset"><div class="m-head"><span class="m-dot" style="--color:#ffbe78"></span>Sunset</div><div class="m-time" id="time-sunset">15:53</div><div class="m-relative" id="rel-sunset">—</div></div>
-        <div class="milestone" id="mile-civil"><div class="m-head"><span class="m-dot" style="--color:#e58c9a"></span>Looks dark</div><div class="m-time" id="time-civil">16:29</div><div class="m-relative" id="rel-civil">—</div></div>
-        <div class="milestone" id="mile-nautical"><div class="m-head"><span class="m-dot" style="--color:#9478dc"></span>Very dark</div><div class="m-time" id="time-nautical">17:10</div><div class="m-relative" id="rel-nautical">—</div></div>
-        <div class="milestone" id="mile-dark"><div class="m-head"><span class="m-dot" style="--color:#7796e9"></span>Fully dark</div><div class="m-time" id="time-dark">17:50</div><div class="m-relative" id="rel-dark">—</div></div>
-      </div>
-      <div class="morning" aria-label="Next morning light forecast">
-        <div class="morning-top">
-          <div class="morning-heading"><span class="symbol" aria-hidden="true">☀</span>When will it get light outside?</div>
-          <span class="morning-date" id="morning-date">TOMORROW MORNING</span>
+      <div class="details-grid">
+        <div class="evening-panel">
+          <div class="milestones">
+            <div class="milestone" id="mile-sunset"><div class="m-head"><span class="m-dot" style="--color:#ffbe78"></span>Sunset</div><div class="m-time" id="time-sunset">15:53</div><div class="m-relative" id="rel-sunset">—</div></div>
+            <div class="milestone" id="mile-civil"><div class="m-head"><span class="m-dot" style="--color:#e58c9a"></span>Looks dark</div><div class="m-time" id="time-civil">16:29</div><div class="m-relative" id="rel-civil">—</div></div>
+            <div class="milestone" id="mile-nautical"><div class="m-head"><span class="m-dot" style="--color:#9478dc"></span>Very dark</div><div class="m-time" id="time-nautical">17:10</div><div class="m-relative" id="rel-nautical">—</div></div>
+            <div class="milestone" id="mile-dark"><div class="m-head"><span class="m-dot" style="--color:#7796e9"></span>Fully dark</div><div class="m-time" id="time-dark">17:50</div><div class="m-relative" id="rel-dark">—</div></div>
+          </div>
+          <div class="explain">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 11v6m0-10v1"/></svg>
+            <div><strong style="color:#e0e8f8">When is it actually dark?</strong><br>Around the end of civil twilight it already feels dark outside. Complete <em>astronomical</em> darkness is when the Sun reaches 18° below the horizon. Streetlights and clouds can still brighten the night sky.</div>
+          </div>
         </div>
-        <div class="morning-grid">
-          <div class="morning-step"><div class="step-title">✧ First faint glow</div><strong class="step-time" id="morning-faint">05:29</strong><div class="step-description">Nautical dawn · very faint light</div></div>
-          <div class="morning-step important"><div class="step-title">◉ Light outdoors</div><strong class="step-time" id="morning-light">06:10</strong><div class="step-description">Civil dawn · usually light enough to walk</div></div>
-          <div class="morning-step"><div class="step-title">☀ Sunrise</div><strong class="step-time" id="morning-sunrise">06:47</strong><div class="step-description">Sun appears above the horizon</div></div>
+        <div class="morning" aria-label="Next morning light forecast">
+          <div class="morning-top">
+            <div class="morning-heading"><span class="symbol" aria-hidden="true">☀</span>When will it get light outside?</div>
+            <span class="morning-date" id="morning-date">TOMORROW MORNING</span>
+          </div>
+          <div class="morning-grid">
+            <div class="morning-step"><div class="step-title">✧ First faint glow</div><strong class="step-time" id="morning-faint">05:29</strong><div class="step-description">Nautical dawn · very faint light</div></div>
+            <div class="morning-step important"><div class="step-title">◉ Light outdoors</div><strong class="step-time" id="morning-light">06:10</strong><div class="step-description">Civil dawn · usually light enough to walk</div></div>
+            <div class="morning-step"><div class="step-title">☀ Sunrise</div><strong class="step-time" id="morning-sunrise">06:47</strong><div class="step-description">Sun appears above the horizon</div></div>
+          </div>
+          <div class="morning-count"><span id="morning-count-label">Until outdoor light</span><strong id="morning-count">--:--:--</strong></div>
         </div>
-        <div class="morning-count"><span id="morning-count-label">Until outdoor light</span><strong id="morning-count">--:--:--</strong></div>
       </div>
-      <div class="explain">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 11v6m0-10v1"/></svg>
-        <div><strong style="color:#e0e8f8">When is it actually dark?</strong><br>Around the end of civil twilight it already feels dark outside. Complete <em>astronomical</em> darkness is when the Sun reaches 18° below the horizon. Streetlights and clouds can still brighten the night sky.</div>
-      </div>
-      <div class="footer"><span>Live countdown · Warsaw local time · Updated every second</span><span>Solar times: <a href="https://www.timeanddate.com/sun/poland/warsaw" target="_blank" rel="noopener noreferrer">timeanddate.com</a> · Sky is illustrative</span></div>
+      <div class="footer"><span id="local-time-note">Live countdown · Warsaw local time · Updated every second</span><span>Solar times: <a id="solar-reference" href="https://www.timeanddate.com/sun/poland/warsaw" target="_blank" rel="noopener noreferrer">timeanddate.com</a> · Sky is illustrative</span></div>
     </section>
   </main>
   <script>
     (() => {
-      const zone = 'Europe/Warsaw';
-      const lat = 52.2297, lon = 21.0122;
+      const cities = [
+        { id: 'warsaw', name: 'Warsaw', country: 'Poland', lat: 52.2297, lon: 21.0122, zone: 'Europe/Warsaw', reference: 'poland/warsaw' },
+        { id: 'krakow', name: 'Kraków', country: 'Poland', lat: 50.0647, lon: 19.9450, zone: 'Europe/Warsaw', reference: 'poland/krakow' },
+        { id: 'kyiv', name: 'Kyiv', country: 'Ukraine', lat: 50.4501, lon: 30.5234, zone: 'Europe/Kyiv', reference: 'ukraine/kyiv' },
+        { id: 'lviv', name: 'Lviv', country: 'Ukraine', lat: 49.8397, lon: 24.0297, zone: 'Europe/Kyiv', reference: 'ukraine/lviv' },
+        { id: 'berlin', name: 'Berlin', country: 'Germany', lat: 52.5200, lon: 13.4050, zone: 'Europe/Berlin', reference: 'germany/berlin' },
+        { id: 'london', name: 'London', country: 'UK', lat: 51.5074, lon: -0.1278, zone: 'Europe/London', reference: 'uk/london' },
+        { id: 'paris', name: 'Paris', country: 'France', lat: 48.8566, lon: 2.3522, zone: 'Europe/Paris', reference: 'france/paris' },
+        { id: 'lisbon', name: 'Lisbon', country: 'Portugal', lat: 38.7223, lon: -9.1393, zone: 'Europe/Lisbon', reference: 'portugal/lisbon' },
+        { id: 'new-york', name: 'New York', country: 'USA', lat: 40.7128, lon: -74.0060, zone: 'America/New_York', reference: 'usa/new-york' },
+        { id: 'los-angeles', name: 'Los Angeles', country: 'USA', lat: 34.0522, lon: -118.2437, zone: 'America/Los_Angeles', reference: 'usa/los-angeles' },
+        { id: 'tokyo', name: 'Tokyo', country: 'Japan', lat: 35.6762, lon: 139.6503, zone: 'Asia/Tokyo', reference: 'japan/tokyo' },
+        { id: 'sydney', name: 'Sydney', country: 'Australia', lat: -33.8688, lon: 151.2093, zone: 'Australia/Sydney', reference: 'australia/sydney' }
+      ];
+      let city = cities[0];
       const $ = id => document.getElementById(id);
       const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-      const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-      const clockFmt = new Intl.DateTimeFormat('en-GB', { timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
-      const dayFmt = new Intl.DateTimeFormat('en-US', { timeZone: zone, weekday: 'short', month: 'short', day: '2-digit' });
-      const partFmt = new Intl.DateTimeFormat('en-GB', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' });
+      let fmt, clockFmt, dayFmt, partFmt;
 
       function localDate(now) {
         const parts = Object.fromEntries(partFmt.formatToParts(now).filter(part => part.type !== 'literal').map(part => [part.type, +part.value]));
@@ -208,6 +248,7 @@
       // NOAA-style local solar calculation; does not require a server or network.
       function solarEvent(date, zenith, rising) {
         const { y, m, d } = date;
+        const { lat, lon } = city;
         const rad = Math.PI / 180;
         const dayNumber = Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(y, 0, 1)) / 86400000) + 1;
         const longitudeHours = lon / 15;
@@ -244,11 +285,11 @@
           dark: solarEvent(date, 108, false)
         };
         // Verified published Warsaw times for 9 Nov 2026.
-        if (date.y === 2026 && date.m === 11 && date.d === 9) {
+        if (city.id === 'warsaw' && date.y === 2026 && date.m === 11 && date.d === 9) {
           const local = (hour, minute) => Date.UTC(2026, 10, 9, hour - 1, minute);
           schedule = { dawnFaint: local(5, 28), dawn: local(6, 8), rise: local(6, 45), sunset: local(15, 53), civil: local(16, 29), nautical: local(17, 10), dark: local(17, 50) };
         }
-        if (date.y === 2026 && date.m === 11 && date.d === 10) {
+        if (city.id === 'warsaw' && date.y === 2026 && date.m === 11 && date.d === 10) {
           const local = (hour, minute) => Date.UTC(2026, 10, 10, hour - 1, minute);
           schedule = { dawnFaint: local(5, 29), dawn: local(6, 10), rise: local(6, 47), sunset: local(15, 51), civil: local(16, 28), nautical: local(17, 9), dark: local(17, 49) };
         }
@@ -292,7 +333,7 @@
       function tick() {
         const now = Date.now();
         const day = localDate(new Date(now));
-        const key = `${day.y}-${day.m}-${day.d}`;
+        const key = `${city.id}-${day.y}-${day.m}-${day.d}`;
         if (key !== dateKey) {
           dateKey = key;
           schedule = getSchedule(day);
@@ -307,9 +348,7 @@
 
         const thisMorning = now < times.rise;
         const morningTimes = thisMorning ? times : tomorrowSchedule;
-        const morningDay = thisMorning ? day : tomorrowDate;
-        const morningNoon = new Date(Date.UTC(morningDay.y, morningDay.m - 1, morningDay.d, 12));
-        $('morning-date').textContent = (thisMorning ? 'THIS MORNING · ' : 'TOMORROW · ') + dayFmt.format(morningNoon).toUpperCase();
+        $('morning-date').textContent = (thisMorning ? 'THIS MORNING · ' : 'TOMORROW · ') + dayFmt.format(new Date(morningTimes.rise)).toUpperCase();
         $('morning-faint').textContent = fmt.format(new Date(morningTimes.dawnFaint));
         $('morning-light').textContent = fmt.format(new Date(morningTimes.dawn));
         $('morning-sunrise').textContent = fmt.format(new Date(morningTimes.rise));
@@ -384,7 +423,52 @@
           $('mile-' + name).classList.toggle('active', now >= previous && now < timestamp);
         });
       }
-      tick();
+      function selectCity(id, remember = false) {
+        city = cities.find(item => item.id === id) || cities[0];
+        const timeZone = city.zone;
+        fmt = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+        clockFmt = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+        dayFmt = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short', month: 'short', day: '2-digit' });
+        partFmt = new Intl.DateTimeFormat('en-GB', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
+        $('city-select').value = city.id;
+        $('local-time-note').textContent = `Live countdown · ${city.name} local time · Updated every second`;
+        $('solar-reference').href = 'https://www.timeanddate.com/sun/' + city.reference;
+        document.title = `${city.name} Sunset · Live Countdown`;
+        tick();
+        if (remember) {
+          try { localStorage.setItem('sunset-city', city.id); } catch { /* Storage may be unavailable in private or embedded views. */ }
+        }
+      }
+
+      const citySelect = $('city-select');
+      citySelect.replaceChildren();
+      cities.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = `${item.name}, ${item.country}`;
+        citySelect.appendChild(option);
+      });
+      citySelect.addEventListener('change', () => selectCity(citySelect.value, true));
+      let savedCity;
+      try { savedCity = localStorage.getItem('sunset-city'); } catch { /* Fall back to Warsaw when storage is blocked. */ }
+      selectCity(savedCity);
+
+      const fullscreen = $('fullscreen');
+      fullscreen.hidden = !document.fullscreenEnabled;
+      fullscreen.addEventListener('click', async () => {
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          else await document.documentElement.requestFullscreen();
+        } catch {
+          fullscreen.title = 'Full screen is unavailable in this browser window';
+        }
+      });
+      document.addEventListener('fullscreenchange', () => {
+        const label = document.fullscreenElement ? 'Exit full screen' : 'Enter full screen';
+        fullscreen.setAttribute('aria-label', label);
+        fullscreen.title = label;
+      });
+
       setInterval(tick, 1000);
       document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
     })();
