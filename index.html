@@ -133,6 +133,63 @@
       .footer { flex-wrap: wrap; }
     }
     @media (prefers-reduced-motion: reduce) { .star, .pulse { animation: none; } }
+
+    .app { min-height: 760px; grid-template-rows: minmax(360px, 1fr) auto; }
+    .hero-grid { position: relative; z-index: 3; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .9fr); align-items: center; gap: clamp(24px, 4vw, 80px); padding: 0 var(--gutter) 30px; }
+    .solar-panel { min-width: 0; }
+    .solar-panel .phase { margin: 0 0 24px; }
+    .solar-countdowns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .solar-timer { min-width: 0; padding: 20px 0; }
+    .solar-timer + .solar-timer { border-left: 1px solid #ffffff20; padding-left: 24px; }
+    .solar-timer .counter { font-size: clamp(28px, 4.1vw, 82px); letter-spacing: -2px; }
+    .dawn-timer .counter { color: #d1e9ec; }
+    .solar-timer .eyebrow { font-size: 11px; letter-spacing: 2px; }
+    .solar-timer .sub { display: block; font-size: 12px; color: #b5c2d8; line-height: 1.5; }
+    .darkness-inline { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; color: #adb7d5; font-size: 11px; }
+    .darkness-inline strong { font: 600 18px ui-monospace, monospace; color: #d0d7ef; }
+    .evening-aside { min-width: 0; width: 100%; max-width: 570px; justify-self: end; }
+    .wall-clock-card { margin-bottom: 20px; }
+    .wall-clock-card .eyebrow { color: #aebcd8; font-size: 10px; letter-spacing: 2px; margin-bottom: 10px; }
+    .wall-clock { font: 500 clamp(42px, 6vw, 112px)/1.05 ui-monospace, monospace; letter-spacing: -4px; font-variant-numeric: tabular-nums; color: #f2edf9; }
+    .wall-date { margin-top: 8px; color: #aab8d0; font-size: 12px; }
+    .sleep-card { --rest: #a8cbbd; padding: 17px 20px; border: 1px solid #b4cfc32e; border-radius: 18px; background: #101d2ad9; box-shadow: 0 8px 40px #00000018; }
+    .sleep-card[data-state="wind-down"] { --rest: #e3c394; border-color: #e3c39470; background: #2d2635e8; box-shadow: 0 0 40px #e3c39412; }
+    .sleep-card[data-state="sleep-now"] { --rest: #c7b6e6; border-color: #c7b6e67a; background: #242039ed; box-shadow: 0 0 45px #c7b6e619; }
+    .sleep-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .sleep-heading { font-size: 13px; color: #e1e5ee; }
+    .sleep-state { padding: 4px 8px; border-radius: 20px; background: #ffffff0a; color: var(--rest); font-size: 10px; }
+    .sleep-count-row { display: flex; align-items: center; gap: 16px; margin: 13px 0; }
+    .sleep-count-row strong { font: 550 clamp(27px, 2.6vw, 44px) ui-monospace, monospace; color: var(--rest); letter-spacing: -1px; }
+    .sleep-count-row > span { color: #b6bdd0; font-size: 10px; line-height: 1.6; }
+    .sleep-progress { height: 4px; border-radius: 8px; overflow: hidden; background: #ffffff12; }
+    .sleep-progress > span { display: block; height: 100%; width: var(--sleep-progress, 0%); background: var(--rest); border-radius: inherit; transition: width 1s linear; }
+    .sleep-marks { display: flex; justify-content: space-between; margin-top: 8px; color: #a7b3c5; font-size: 10px; }
+    .sleep-marks b { color: var(--rest); margin-right: 4px; font-weight: 600; }
+    .sleep-hint { margin-top: 11px; color: var(--rest); font-size: 11px; line-height: 1.4; }
+    @media (max-width: 1100px) and (min-width: 901px) { .hero-grid { gap: 24px; grid-template-columns: 1.2fr 1fr; } .solar-countdowns { gap: 12px; } .solar-timer + .solar-timer { padding-left: 12px; } .solar-timer .counter { font-size: 32px; } }
+    @media (max-width: 900px) {
+      .app { height: auto; min-height: 100svh; grid-template-rows: auto auto; }
+      .hero-grid { grid-template-columns: 1fr; gap: 25px; padding-top: 8px; padding-bottom: 35px; }
+      .evening-aside { max-width: none; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 24px; }
+      .wall-clock { font-size: clamp(35px, 6vw, 65px); letter-spacing: -2px; }
+      .solar-timer .counter { font-size: clamp(30px, 6vw, 60px); }
+    }
+    @media (max-width: 600px) {
+      .hero-grid { gap: 24px; }
+      .solar-panel .phase { margin-bottom: 6px; }
+      .solar-countdowns { gap: 14px; }
+      .solar-timer { padding: 16px 0; }
+      .solar-timer + .solar-timer { padding-left: 14px; }
+      .solar-timer .counter { font-size: clamp(24px, 7.3vw, 42px); letter-spacing: -1px; }
+      .solar-timer .eyebrow { font-size: 9px; letter-spacing: 1px; }
+      .solar-timer .sub { font-size: 10px; }
+      .darkness-inline { margin-top: 6px; font-size: 10px; }
+      .evening-aside { grid-template-columns: 1fr; gap: 0; }
+      .wall-clock-card { text-align: center; margin-bottom: 22px; }
+      .wall-clock { font-size: clamp(42px, 12vw, 70px); }
+      .sleep-count-row strong { font-size: 34px; }
+      .city-select { width: 135px; }
+    }
   </style>
 </head>
 <body>
@@ -146,28 +203,37 @@
           <select class="city-select" id="city-select" aria-label="City"><option value="warsaw">Warsaw, Poland</option></select>
         </label>
         <div class="top-actions">
-          <div class="live"><span class="pulse"></span>LIVE <span id="clock">--:--:--</span></div>
+          <div class="live"><span class="pulse"></span>LIVE <span id="clock">--:--</span></div>
           <button class="fullscreen" type="button" id="fullscreen" aria-label="Enter full screen" title="Enter full screen" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>
           </button>
         </div>
       </div>
-      <div class="content">
-        <div class="eyebrow" id="sun-label">TIME UNTIL SUNSET</div>
-        <div class="counter" id="sun-count">--:--:--</div>
-        <div class="sub" id="sun-sub">Calculating sunset…</div>
-        <div class="phase"><span class="phase-dot" id="phase-dot"></span><span id="phase-text">Daylight</span></div>
+      <div class="hero-grid">
+        <div class="solar-panel">
+          <div class="phase"><span class="phase-dot" id="phase-dot"></span><span id="phase-text">Daylight</span></div>
+          <div class="solar-countdowns">
+            <div class="solar-timer dawn-timer"><div class="eyebrow">UNTIL DAWN</div><div class="counter" id="dawn-count">--:--</div><div class="sub" id="dawn-sub">Civil dawn · calculating…</div></div>
+            <div class="solar-timer"><div class="eyebrow" id="sun-label">UNTIL SUNSET</div><div class="counter" id="sun-count">--:--</div><div class="sub" id="sun-sub">Calculating sunset…</div></div>
+          </div>
+          <div class="darkness-inline"><span>✦ Astronomical darkness</span><strong id="dark-count">--:--</strong><span id="dark-sub">Calculating…</span></div>
+        </div>
+        <aside class="evening-aside" aria-label="Warsaw clock and evening routine">
+          <div class="wall-clock-card"><div class="eyebrow">WARSAW TIME · EUROPE/WARSAW</div><div id="wall-clock" class="wall-clock">--:--</div><div id="wall-date" class="wall-date"></div></div>
+          <div class="sleep-card" id="sleep-card" data-state="normal">
+            <div class="sleep-top"><span class="sleep-heading">☾ Time for rest</span><span class="sleep-state" id="sleep-state">Normal</span></div>
+            <div class="sleep-count-row"><strong id="sleep-count">--:--</strong><span>until 23:00<br>time to be asleep</span></div>
+            <div class="sleep-progress" role="progressbar" aria-label="Evening routine progress" aria-valuemin="0" aria-valuemax="100" id="sleep-progress"><span></span></div>
+            <div class="sleep-marks"><span><b>22:30</b> Wind down</span><span><b>23:00</b> Sleep</span></div>
+            <div class="sleep-hint" id="sleep-hint">Make room for a gentle evening.</div>
+          </div>
+        </aside>
       </div>
       <svg class="hills" viewBox="0 0 960 140" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0 74 Q130 37 252 75 T490 75 Q620 36 756 76 T960 67 V140 H0Z" fill="#17233a" opacity=".65"/>
         <path d="M0 105 Q152 73 310 108 Q475 57 618 107 Q784 76 960 101 V140 H0Z" fill="#0b1529" opacity=".95"/>
         <path d="M0 122 Q270 91 460 122 Q660 97 960 120 V140 H0Z" fill="#081120"/>
       </svg>
-      <div class="night-card">
-        <div class="card-label">✦ UNTIL COMPLETE DARKNESS</div>
-        <div class="night-time" id="dark-count">--:--:--</div>
-        <div class="night-sub" id="dark-sub">Astronomical night begins at 17:50</div>
-      </div>
     </section>
 
     <section class="bottom">
@@ -209,7 +275,7 @@
             <div class="morning-step important"><div class="step-title">◉ Light outdoors</div><strong class="step-time" id="morning-light">06:10</strong><div class="step-description">Civil dawn · usually light enough to walk</div></div>
             <div class="morning-step"><div class="step-title">☀ Sunrise</div><strong class="step-time" id="morning-sunrise">06:47</strong><div class="step-description">Sun appears above the horizon</div></div>
           </div>
-          <div class="morning-count"><span id="morning-count-label">Until outdoor light</span><strong id="morning-count">--:--:--</strong></div>
+          <div class="morning-count"><span id="morning-count-label">Until outdoor light</span><strong id="morning-count">--:--</strong></div>
         </div>
       </div>
       <div class="footer"><span id="local-time-note">Live countdown · Warsaw local time · Updated every second</span><span>Solar times: <a id="solar-reference" href="https://www.timeanddate.com/sun/poland/warsaw" target="_blank" rel="noopener noreferrer">timeanddate.com</a> · Sky is illustrative</span></div>
@@ -299,9 +365,9 @@
       const timeText = timestamp => Number.isFinite(timestamp) ? fmt.format(new Date(timestamp)) : '—';
 
       function countdown(milliseconds) {
-        const seconds = Math.max(0, Math.floor(milliseconds / 1000));
-        const hours = Math.floor(seconds / 3600), minutes = Math.floor(seconds % 3600 / 60), remainder = seconds % 60;
-        return [hours, minutes, remainder].map(value => String(value).padStart(2, '0')).join(':');
+        const totalMinutes = Math.max(0, Math.ceil(milliseconds / 60000));
+        const hours = Math.floor(totalMinutes / 60), minutes = totalMinutes % 60;
+        return [hours, minutes].map(value => String(value).padStart(2, '0')).join(':');
       }
       function relative(milliseconds) {
         if (milliseconds <= 0) return 'Already passed';
@@ -327,6 +393,15 @@
         star.className = 'star';
         star.style.cssText = `left:${random() * 99}%;top:${random() * 72}%;width:${size}px;height:${size}px;animation-delay:${random() * 3}s;animation-duration:${2 + random() * 3}s`;
         $('stars').appendChild(star);
+      }
+
+      const warsawClock = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Warsaw', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+      const warsawDate = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Warsaw', weekday: 'long', day: 'numeric', month: 'long' });
+      function sleepState(now) {
+        const parts = warsawClock.format(new Date(now)).split(':').map(Number);
+        const seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+        const state = seconds >= 23 * 3600 || seconds < 6 * 3600 ? 'sleep-now' : seconds >= 22.5 * 3600 ? 'wind-down' : 'normal';
+        return { state, remaining: state === 'sleep-now' ? 0 : (23 * 3600 - seconds) * 1000, progress: clamp((seconds - 18 * 3600) / (5 * 3600) * 100, 0, 100) };
       }
 
       let dateKey = '', schedule, tomorrowDate, tomorrowSchedule;
@@ -356,14 +431,22 @@
         $('morning-count').textContent = now >= morningTimes.dawn ? 'Now' : countdown(morningTimes.dawn - now);
 
         const beforeSunset = now < times.sunset, beforeDark = now < times.dark;
-        $('sun-label').textContent = beforeSunset ? 'TIME UNTIL SUNSET' : 'THE SUN HAS SET';
-        $('sun-count').textContent = beforeSunset ? countdown(times.sunset - now) : 'Sunset passed';
-        $('sun-count').classList.toggle('words', !beforeSunset);
-        $('sun-sub').replaceChildren(
-          document.createTextNode(beforeSunset ? 'The sun sets at ' : 'The sun went below the horizon at '),
-          Object.assign(document.createElement('b'), { textContent: fmt.format(new Date(times.sunset)) }),
-          document.createTextNode(beforeSunset ? ' today' : '')
-        );
+        const nextDawn = now < times.dawn ? times.dawn : tomorrowSchedule.dawn;
+        const nextSunset = beforeSunset ? times.sunset : tomorrowSchedule.sunset;
+        $('dawn-count').textContent = countdown(nextDawn - now);
+        $('dawn-sub').textContent = 'Civil dawn · ' + (now < times.dawn ? 'Today ' : 'Tomorrow ') + timeText(nextDawn);
+        $('sun-count').textContent = countdown(nextSunset - now);
+        $('sun-sub').textContent = (beforeSunset ? 'Today ' : 'Tomorrow ') + timeText(nextSunset);
+        $('wall-clock').textContent = warsawClock.format(new Date(now)).slice(0, 5);
+        $('wall-date').textContent = warsawDate.format(new Date(now));
+        const rest = sleepState(now);
+        $('sleep-card').setAttribute('data-state', rest.state);
+        $('sleep-state').textContent = { normal: 'Normal', 'wind-down': 'Wind-down', 'sleep-now': 'Sleep now' }[rest.state];
+        $('sleep-count').textContent = countdown(rest.remaining);
+        $('sleep-hint').textContent = { normal: 'At 22:30, dim the lights and start winding down.', 'wind-down': 'Time to wind down. Put screens away and get ready for bed.', 'sleep-now': 'Time to be asleep. Rest well — your next day can wait.' }[rest.state];
+        const sleepProgress = rest.state === 'sleep-now' ? 100 : rest.progress;
+        $('sleep-progress').style.setProperty('--sleep-progress', sleepProgress + '%');
+        $('sleep-progress').setAttribute('aria-valuenow', Math.round(sleepProgress));
         const hasDark = Number.isFinite(times.dark);
         $('dark-count').textContent = !hasDark ? 'No full darkness' : beforeDark ? countdown(times.dark - now) : 'Night is here';
         $('dark-count').classList.toggle('words', !beforeDark);
@@ -427,7 +510,7 @@
         city = cities.find(item => item.id === id) || cities[0];
         const timeZone = city.zone;
         fmt = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-        clockFmt = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+        clockFmt = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
         dayFmt = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short', month: 'short', day: '2-digit' });
         partFmt = new Intl.DateTimeFormat('en-GB', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' });
         $('city-select').value = city.id;

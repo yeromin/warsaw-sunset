@@ -35,3 +35,9 @@ Checks cover city switching, remembered selections, unavailable storage, local d
 The publishing branch is `migration/github-pages`. In **Settings → Pages**, choose **Deploy from a branch**, this branch and **/(root)**, then save. `.nojekyll` keeps deployment as plain HTML. All page resources are inline, so project subpaths work without configuration.
 
 Make future changes on a separate working branch and use a pull request into the publishing branch.
+
+## Evening display
+
+The large Warsaw clock and all countdowns display hours and minutes, without seconds. Solar countdowns use the selected city: dawn means civil dawn (Sun at −6°), and both dawn and sunset roll forward to tomorrow immediately after today's event. The solar timeline still describes today.
+
+The rest card always follows Europe/Warsaw: Normal before 22:30, Wind-down at 22:30, Sleep now at 23:00. Sleep now stays active until 06:00; the bedtime countdown stays at zero during that overnight period. The progress bar covers the evening from 18:00 to 23:00. These are the user's routine reminders, not a personalized medical recommendation.

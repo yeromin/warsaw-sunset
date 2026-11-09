@@ -47,16 +47,16 @@ function app(iso, { storage = new Map(), storageBlocked = false } = {}) {
 
 test('original November schedule, seven dots and live countdowns remain intact', () => {
   const page = app('2026-11-09T14:00:00Z');
-  assert.equal(page.element('clock').textContent, '15:00:00');
-  assert.equal(page.element('sun-count').textContent, '00:53:00');
-  assert.equal(page.element('dark-count').textContent, '02:50:00');
+  assert.equal(page.element('clock').textContent, '15:00');
+  assert.equal(page.element('sun-count').textContent, '00:53');
+  assert.equal(page.element('dark-count').textContent, '02:50');
   for (const name of ['dawnFaint', 'dawn', 'rise', 'sunset', 'civil', 'nautical', 'dark']) {
     assert.equal(page.element(`point-${name}`).hidden, false);
     assert.match(page.element(`tip-time-${name}`).textContent, /^\d\d:\d\d$/);
   }
   page.at('2026-11-09T14:00:01Z');
-  assert.equal(page.element('sun-count').textContent, '00:52:59');
-  assert.equal(page.element('tip-relative-sunset').textContent, 'In 00:52:59');
+  assert.equal(page.element('sun-count').textContent, '00:53');
+  assert.equal(page.element('tip-relative-sunset').textContent, 'In 00:53');
 });
 
 test('Warsaw midnight recalculates while the page stays open', () => {
@@ -82,13 +82,13 @@ test('summer dawn uses the previous UTC day; absent astronomical night does not 
 
 test('Warsaw date and clock respect spring and autumn daylight saving changes', () => {
   const page = app('2027-03-28T00:59:59Z');
-  assert.equal(page.element('clock').textContent, '01:59:59');
+  assert.equal(page.element('clock').textContent, '01:59');
   page.at('2027-03-28T01:00:00Z');
-  assert.equal(page.element('clock').textContent, '03:00:00');
+  assert.equal(page.element('clock').textContent, '03:00');
   page.at('2027-10-31T00:59:59Z');
-  assert.equal(page.element('clock').textContent, '02:59:59');
+  assert.equal(page.element('clock').textContent, '02:59');
   page.at('2027-10-31T01:00:00Z');
-  assert.equal(page.element('clock').textContent, '02:00:00');
+  assert.equal(page.element('clock').textContent, '02:00');
 });
 
 test('changing city updates clock, solar schedule, every dot and the morning forecast immediately', () => {
@@ -96,7 +96,7 @@ test('changing city updates clock, solar schedule, every dot and the morning for
   const warsaw = page.element('time-sunset').textContent;
   const dawn = page.element('morning-light').textContent;
   page.choose('new-york');
-  assert.equal(page.element('clock').textContent, '09:00:00');
+  assert.equal(page.element('clock').textContent, '09:00');
   assert.equal(page.element('date-label').textContent, 'MON, NOV 09');
   assert.notEqual(page.element('time-sunset').textContent, warsaw);
   assert.notEqual(page.element('morning-light').textContent, dawn);
@@ -116,16 +116,16 @@ test('cities use their own calendar date across midnight and daylight saving cha
   const page = app('2027-01-01T00:30:00Z');
   page.choose('los-angeles');
   assert.equal(page.element('date-label').textContent, 'THU, DEC 31');
-  assert.equal(page.element('clock').textContent, '16:30:00');
+  assert.equal(page.element('clock').textContent, '16:30');
   assert.equal(page.element('morning-date').textContent, 'TOMORROW · FRI, JAN 01');
   page.choose('tokyo');
   assert.equal(page.element('date-label').textContent, 'FRI, JAN 01');
-  assert.equal(page.element('clock').textContent, '09:30:00');
+  assert.equal(page.element('clock').textContent, '09:30');
   page.choose('new-york');
   page.at('2027-03-14T06:59:59Z');
-  assert.equal(page.element('clock').textContent, '01:59:59');
+  assert.equal(page.element('clock').textContent, '01:59');
   page.at('2027-03-14T07:00:00Z');
-  assert.equal(page.element('clock').textContent, '03:00:00');
+  assert.equal(page.element('clock').textContent, '03:00');
   page.at('2027-03-15T04:00:00Z');
   assert.equal(page.element('date-label').textContent, 'MON, MAR 15');
 });
@@ -136,13 +136,13 @@ test('city choice survives reload, with safe fallback for obsolete choices and u
   page.choose('kyiv');
   const reloaded = app('2027-01-01T12:00:00Z', {storage});
   assert.equal(reloaded.element('city-select').value, 'kyiv');
-  assert.equal(reloaded.element('clock').textContent, '14:00:00');
+  assert.equal(reloaded.element('clock').textContent, '14:00');
   storage.set('sunset-city', 'obsolete');
   const fallback = app('2027-01-01T12:00:00Z', {storage});
   assert.equal(fallback.element('city-select').value, 'warsaw');
   const privatePage = app('2027-01-01T12:00:00Z', {storageBlocked: true});
   assert.doesNotThrow(() => privatePage.choose('london'));
-  assert.equal(privatePage.element('clock').textContent, '12:00:00');
+  assert.equal(privatePage.element('clock').textContent, '12:00');
 });
 
 test('all supported cities retain valid solar event order throughout a full year', () => {
@@ -181,4 +181,39 @@ test('three full years render without invalid times or reversed solar events', (
       }
     }
   }
+});
+
+test('dawn and sunset always roll forward at the event and across midnight', () => {
+  const page = app('2026-11-09T05:07:59Z');
+  assert.equal(page.element('dawn-count').textContent, '00:01');
+  page.at('2026-11-09T05:08:00Z');
+  assert.equal(page.element('dawn-count').textContent, '24:02');
+  assert.match(page.element('dawn-sub').textContent, /Tomorrow 06:10/);
+  page.at('2026-11-09T14:53:00Z');
+  assert.equal(page.element('sun-count').textContent, '23:58');
+  assert.equal(page.element('sun-sub').textContent, 'Tomorrow 15:51');
+  page.at('2026-11-09T23:00:00Z');
+  assert.equal(page.element('dawn-count').textContent, '06:10');
+  assert.equal(page.element('sun-count').textContent, '15:51');
+});
+
+test('Warsaw sleep routine transitions exactly at 22:30 and 23:00 and stays restful overnight', () => {
+  const page = app('2027-01-01T21:29:59Z');
+  assert.equal(page.element('sleep-state').textContent, 'Normal');
+  assert.equal(page.element('sleep-count').textContent, '00:31');
+  page.at('2027-01-01T21:30:00Z');
+  assert.equal(page.element('sleep-state').textContent, 'Wind-down');
+  page.at('2027-01-01T22:00:00Z');
+  assert.equal(page.element('sleep-state').textContent, 'Sleep now');
+  assert.equal(page.element('sleep-count').textContent, '00:00');
+  page.at('2027-01-02T02:00:00Z');
+  assert.equal(page.element('sleep-state').textContent, 'Sleep now');
+  page.at('2027-01-02T05:00:00Z');
+  assert.equal(page.element('sleep-state').textContent, 'Normal');
+  page.choose('tokyo');
+  assert.equal(page.element('wall-clock').textContent, '06:00');
+  assert.equal(page.element('clock').textContent, '14:00');
+  page.at('2027-07-01T20:30:00Z');
+  assert.equal(page.element('sleep-state').textContent, 'Wind-down');
+  assert.equal(page.element('wall-clock').textContent, '22:30');
 });
